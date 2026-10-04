@@ -1,9 +1,33 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import L from 'leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import api, { getErrorMessage } from '../api/client.js';
 import Loader from '../components/Loader.jsx';
 import BookingBox from '../components/BookingBox.jsx';
 import Reviews from '../components/Reviews.jsx';
+
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
+const defaultIcon = L.icon({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
 
 export default function ListingDetail() {
   const { id } = useParams();
@@ -51,7 +75,24 @@ export default function ListingDetail() {
 
           <h3>Location</h3>
           <p className="muted">{listing.address}, {listing.city}</p>
-          {/* TODO: show a map (Leaflet + OpenStreetMap) - see issue tracker */}
+          {listing.location?.lat != null && listing.location?.lng != null ? (
+            <MapContainer
+              center={[listing.location.lat, listing.location.lng]}
+              zoom={13}
+              scrollWheelZoom={false}
+              style={{ height: '300px', width: '100%', borderRadius: 'var(--radius, 12px)', marginTop: '12px', zIndex: 0 }}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <Marker position={[listing.location.lat, listing.location.lng]} icon={defaultIcon}>
+                <Popup>{listing.title}</Popup>
+              </Marker>
+            </MapContainer>
+          ) : (
+            <p className="muted">Location map is not available for this listing.</p>
+          )}
 
           <Reviews listingId={listing._id} onReviewAdded={load} />
         </div>

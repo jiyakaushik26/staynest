@@ -12,6 +12,10 @@ const listingSchema = new mongoose.Schema(
     city: { type: String, required: true, trim: true },
     state: { type: String, required: true, trim: true },
     address: { type: String, required: true },
+    location: {
+      lat: { type: Number, required: false },
+      lng: { type: Number, required: false },
+    },
     pricePerNight: { type: Number, required: true, min: 0 },
     maxGuests: { type: Number, required: true, min: 1 },
     bedrooms: { type: Number, default: 1, min: 0 },
