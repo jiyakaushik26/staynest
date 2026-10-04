@@ -4,13 +4,15 @@ import ListingCard from '../components/ListingCard.jsx';
 import Loader from '../components/Loader.jsx';
 import { STAY_TYPES } from '../utils/format.js';
 
-const initial = { city: '', type: '', guests: '', maxPrice: '' };
+const initial = { city: '', type: '', checkIn: '', checkOut: '', guests: '', maxPrice: '' };
 
 export default function Home() {
   const [filters, setFilters] = useState(initial);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const today = new Date().toISOString().split('T')[0];
 
   const search = (params) => {
     setLoading(true);
@@ -27,7 +29,14 @@ export default function Home() {
     search(initial);
   }, []);
 
-  const set = (key) => (e) => setFilters({ ...filters, [key]: e.target.value });
+  const set = (key) => (e) => {
+    const val = e.target.value;
+    if (key === 'checkIn' && filters.checkOut && val && filters.checkOut < val) {
+      setFilters({ ...filters, checkIn: val, checkOut: '' });
+    } else {
+      setFilters({ ...filters, [key]: val });
+    }
+  };
 
   const submit = (e) => {
     e.preventDefault();
@@ -45,6 +54,20 @@ export default function Home() {
             <option value="">Any type</option>
             {STAY_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
+          <input
+            type="date"
+            min={today}
+            value={filters.checkIn}
+            onChange={set('checkIn')}
+            title="Check-in"
+          />
+          <input
+            type="date"
+            min={filters.checkIn || today}
+            value={filters.checkOut}
+            onChange={set('checkOut')}
+            title="Check-out"
+          />
           <input type="number" min="1" placeholder="Guests" value={filters.guests} onChange={set('guests')} />
           <input type="number" min="0" placeholder="Max ₹/night" value={filters.maxPrice} onChange={set('maxPrice')} />
           <button className="btn">Search</button>

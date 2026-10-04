@@ -3,10 +3,10 @@ import Review from '../models/Review.js';
 import Booking from '../models/Booking.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
-// GET /api/listings?city=&type=&minPrice=&maxPrice=&guests=
-// NOTE: no pagination yet, and checkIn/checkOut availability filter is not implemented.
+// GET /api/listings?city=&type=&minPrice=&maxPrice=&guests=&checkIn=&checkOut=
+// NOTE: no pagination yet.
 export const getListings = asyncHandler(async (req, res) => {
-  const { city, type, minPrice, maxPrice, guests } = req.query;
+  const { city, type, minPrice, maxPrice, guests, checkIn, checkOut } = req.query;
   const filter = { isActive: true };
 
   if (city) filter.city = new RegExp(`^${city}`, 'i');
@@ -16,6 +16,21 @@ export const getListings = asyncHandler(async (req, res) => {
     filter.pricePerNight = {};
     if (minPrice) filter.pricePerNight.$gte = Number(minPrice);
     if (maxPrice) filter.pricePerNight.$lte = Number(maxPrice);
+  }
+
+  if (checkIn && checkOut) {
+    const searchStart = new Date(checkIn);
+    const searchEnd = new Date(checkOut);
+
+    if (!isNaN(searchStart.getTime()) && !isNaN(searchEnd.getTime()) && searchEnd > searchStart) {
+      const bookedListingIds = await Booking.distinct('listing', {
+        status: { $in: ['pending', 'confirmed'] },
+        checkIn: { $lt: searchEnd },
+        checkOut: { $gt: searchStart },
+      });
+
+      filter._id = { $nin: bookedListingIds };
+    }
   }
 
   const listings = await Listing.find(filter).populate('host', 'name').sort({ createdAt: -1 });
