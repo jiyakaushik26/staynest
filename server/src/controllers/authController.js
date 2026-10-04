@@ -8,6 +8,7 @@ const userResponse = (user) => ({
   email: user.email,
   role: user.role,
   avatar: user.avatar,
+  wishlist: user.wishlist || [],
   token: generateToken(user._id),
 });
 

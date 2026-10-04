@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ['guest', 'host'], default: 'guest' },
     avatar: { type: String, default: '' },
     phone: { type: String, default: '' },
+    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Listing' }],
   },
   { timestamps: true }
 );

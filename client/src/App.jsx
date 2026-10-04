@@ -6,6 +6,7 @@ import ListingDetail from './pages/ListingDetail.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Trips from './pages/Trips.jsx';
+import Wishlist from './pages/Wishlist.jsx';
 import HostDashboard from './pages/host/HostDashboard.jsx';
 import ListingForm from './pages/host/ListingForm.jsx';
 import NotFound from './pages/NotFound.jsx';
@@ -18,6 +19,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/stays/:id" element={<ListingDetail />} />
+          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route element={<ProtectedRoute />}>
