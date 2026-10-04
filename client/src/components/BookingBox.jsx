@@ -11,11 +11,34 @@ export default function BookingBox({ listing }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const today = new Date().toISOString().split('T')[0];
+
+  const getNextDay = (dateStr) => {
+    if (!dateStr) return '';
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const next = new Date(Date.UTC(y, m - 1, d + 1));
+    return next.toISOString().split('T')[0];
+  };
+
+  const minCheckOut = form.checkIn ? getNextDay(form.checkIn) : getNextDay(today);
+
   const nights = nightsBetween(form.checkIn, form.checkOut);
   const total = nights * listing.pricePerNight;
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
-  // TODO: the date inputs allow past dates - set a `min` attribute (see issue tracker).
+  const handleCheckInChange = (e) => {
+    const newCheckIn = e.target.value;
+    const minOut = getNextDay(newCheckIn);
+    setForm((prev) => {
+      const isCheckoutInvalid = prev.checkOut && newCheckIn && prev.checkOut < minOut;
+      return {
+        ...prev,
+        checkIn: newCheckIn,
+        checkOut: isCheckoutInvalid ? '' : prev.checkOut,
+      };
+    });
+  };
+
   const book = async (e) => {
     e.preventDefault();
     if (!user) return navigate('/login', { state: { from: `/stays/${listing._id}` } });
@@ -44,11 +67,23 @@ export default function BookingBox({ listing }) {
       <div className="row">
         <label className="grow">
           Check-in
-          <input type="date" required value={form.checkIn} onChange={set('checkIn')} />
+          <input
+            type="date"
+            required
+            min={today}
+            value={form.checkIn}
+            onChange={handleCheckInChange}
+          />
         </label>
         <label className="grow">
           Check-out
-          <input type="date" required value={form.checkOut} onChange={set('checkOut')} />
+          <input
+            type="date"
+            required
+            min={minCheckOut}
+            value={form.checkOut}
+            onChange={set('checkOut')}
+          />
         </label>
       </div>
       <label>
