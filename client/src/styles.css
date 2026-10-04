@@ -44,6 +44,8 @@ h2 { text-transform: none; }
 .btn-ghost { background: transparent; color: var(--primary) !important; border: 1px solid var(--border); }
 .btn-ghost:hover { background: var(--bg); }
 .btn-danger { background: var(--danger); }
+.btn-ghost.btn-danger { color: var(--danger) !important; }
+.btn-sm { padding: 4px 10px; font-size: 0.85rem; }
 .full { width: 100%; }
 
 input, select, textarea {
